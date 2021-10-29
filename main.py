@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     # option v
     if args.v:
-        vprs.program(s)
+        vprs.lexical(s)
     # none option
     else:
-        prs.program(s)
+        prs.lexical(s)

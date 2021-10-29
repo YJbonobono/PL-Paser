@@ -11,6 +11,9 @@ Unknown = 9999999
 ident = {}
 WARNING = []
 
+def lexical(string):
+    program(string)
+
 # 한줄이 input으로 들어간다.
 def program(string):
     # <program> → <statements>

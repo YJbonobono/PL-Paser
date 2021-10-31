@@ -78,7 +78,7 @@ def stmt(string):
 def expr(string, idt, op, const): 
     #idt, op, const = 0, 0, 0
     string = string.strip()
-    print("expr string: {}".format(string))
+    #print("expr string: {}".format(string))
     # <expr> → <term><term_tail>
     # Paranthesis() 기준이나
     if string[0]==LEFT_PAREN:
@@ -132,7 +132,7 @@ def expr(string, idt, op, const):
 def term(string, idt, op, const):
     #idt, op, const = 0, 0, 0
     string = string.strip()
-    print("term string: {}".format(string))  
+    #print("term string: {}".format(string))  
     # <term> → <factor><factor_tail>
     # Paranthesis() 기준이나
     if string[0]==LEFT_PAREN:
@@ -188,13 +188,13 @@ def term_tail(string, idt, op, const):
     #idt, op, const = 0, 0, 0
     if string == 0:
         # <term_tail> → ε
-        print("0term_tail string: {}".format(string))
+        #print("0term_tail string: {}".format(string))
         return 0, idt, op, const
     else:
         # <term_tail> → <add_op><term><term_tail>
         # 앞뒤 공백 제거
         string = str(string).strip()
-        print("term_tail string: {}".format(string))
+        #print("term_tail string: {}".format(string))
         # Operand Parsing 및 중복연산자 오류 해결
         loc = 0
         s_temp = string.split()
@@ -243,7 +243,7 @@ def term_tail(string, idt, op, const):
 def factor(string, idt, op, const):
     #idt, const = 0, 0
     string = string.strip()
-    print("  factor string: {}".format(string))
+    #print("  factor string: {}".format(string))
     token = string[0]
     if token == LEFT_PAREN:
         # <factor> → <LP><expr><RP>
@@ -280,13 +280,13 @@ def factor_tail(string, idt, op, const):
     #idt, op, const = 0, 0, 0
     if string == 1:
         # <factor_tail> → ε
-        print("  0factor_tail string: {}".format(string))
+        #print("  0factor_tail string: {}".format(string))
         return 1, idt, op, const
     else:
         # <factor_tail> → <mult_op><factor><factor_tail>
         # 앞뒤 공백 제거
         string = string.strip()
-        print("  factor_tail string: {}".format(string))
+        #print("  factor_tail string: {}".format(string))
         # Operand Parsing 및 중복연산자 오류 해결
         loc = 0
         s_temp = string.split()
@@ -321,7 +321,6 @@ def factor_tail(string, idt, op, const):
             f_tail, idt_t, op_t, const_t = factor_tail(string[mult_loc:], idt, op, const)
         if f == Unknown or f_tail == Unknown:
             return Unknown, idt0+idt_t-idt, op0+op_t-op, const0+const_t-const
-        # 수정 필요
         else:
             # 연산자 없는 경우
             if mult_loc == 1000000:

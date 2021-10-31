@@ -72,8 +72,8 @@ def expr(string, idt, op, const):
         # 곱셈 나눗셈은 term으로 전부
         if lp_loc != len(string)-1 and string[lp_loc+2] in MULT_OP:
             t, idt0, op0, const0 = term(string, idt, op, const)
-            # 1을 넘겨주면 term_tail은 ε을 반환한다.
-            t_tail, idt_t, op_t, const_t = term_tail(1, idt, op, const)
+            # 0을 넘겨주면 term_tail은 ε을 반환한다.
+            t_tail, idt_t, op_t, const_t = term_tail(0, idt, op, const)
         # 덧셈 뺄셈은 나눠서 보낸다
         else:
             t, idt0, op0, const0 = term(string[:lp_loc+1], idt, op, const)
@@ -91,15 +91,14 @@ def expr(string, idt, op, const):
         if plus_loc == mins_loc:
             add_loc = 1000000
             t, idt0, op0, const0 = term(string, idt, op, const)
-            # 1을 넘겨주면 term_tail은 ε을 반환한다.
-            t_tail, idt_t, op_t, const_t = term_tail(1, idt, op, const)
+            # 0을 넘겨주면 term_tail은 ε을 반환한다.
+            t_tail, idt_t, op_t, const_t = term_tail(0, idt, op, const)
         else:
             # 선두에 있는 연산자 우선
             add_loc = plus_loc if plus_loc < mins_loc else mins_loc
             # term 하나에 operand나 constant 하나
             t, idt0, op0, const0 = term(string[:add_loc], idt, op, const)
             t_tail, idt_t, op_t, const_t = term_tail(string[add_loc:], idt, op, const)
-    # 수정 필요, +- 구분해야함
     if t == Unknown or t_tail == Unknown:
         return Unknown, idt0+idt_t-idt, op0+op_t-op, const0+const_t-const
     else:
@@ -154,7 +153,6 @@ def term(string, idt, op, const):
             mult_loc = mul_loc if mul_loc < div_loc else div_loc
             f, idt0, op0, const0 = factor(string[:mult_loc], idt, op, const)
             f_tail, idt_t, op_t, const_t = factor_tail(string[mult_loc:], idt, op, const)
-    # 수정 필요, */ 구분해야함
     if f == Unknown or f_tail == Unknown:
         return Unknown, idt+idt_t-idt, op+op_t-op, const+const_t-const
     else:
@@ -173,14 +171,14 @@ def term(string, idt, op, const):
 # ADD_OP 이후의 값들을 계산한 값을 반환한다.
 def term_tail(string, idt, op, const): 
     #idt, op, const = 0, 0, 0
-    if string == 1:
+    if string == 0:
         # <term_tail> → ε
         #print("0term_tail string: {}".format(string))
         return 0, idt, op, const
     else:
         # <term_tail> → <add_op><term><term_tail>
         # 앞뒤 공백 제거
-        string = string.strip()
+        string = str(string).strip()
         #print("term_tail string: {}".format(string))
         # Operand Parsing 및 중복연산자 오류 해결
         loc = 0
@@ -192,7 +190,7 @@ def term_tail(string, idt, op, const):
             else:
                 break
         op += 1
-        string = ' '.join(s_temp[loc:])  
+        string = ' '.join(s_temp[loc+1:])  
         # ADD_OP (+/-)를 기준으로 term, term_tail 나눕니다
         plus_loc, mins_loc = 1000000, 1000000
         # 덧셈기호 찾기
@@ -205,19 +203,15 @@ def term_tail(string, idt, op, const):
         if plus_loc == mins_loc:
             add_loc = 1000000
             t, idt0, op0, const0 = term(string, idt, op, const)
-            # 1을 넘겨주면 term_tail은 ε을 반환한다.
-            t_tail, idt_t, op_t, const_t = term_tail(1, idt, op, const)
+            # 0을 넘겨주면 term_tail은 ε을 반환한다.
+            t_tail, idt_t, op_t, const_t = term_tail(0, idt, op, const)
+        # 존재하는 경우
         else:
             # 선두에 있는 연산자 우선
             add_loc = plus_loc if plus_loc < mins_loc else mins_loc
             # 서두의 ADD_OP를 제외한 식을 넘긴다.
-            if add_loc == 0:
-                t, idt0, op0, const0 = term(string[1:], idt, op, const)
-                t_tail, idt_t, op_t, const_t = term_tail(1, idt, op, const)
-            else:
-                t, idt0, op0, const0 = term(string[2:add_loc], idt, op, const)
-                t_tail, idt_t, op_t, const_t = term_tail(string[add_loc:], idt, op, const)
-        # 수정 필요 +- 구분 필요
+            t, idt0, op0, const0 = term(string[:add_loc], idt, op, const)
+            t_tail, idt_t, op_t, const_t = term_tail(string[add_loc:], idt, op, const)
         if t == Unknown or t_tail==Unknown:
             return Unknown, idt0+idt_t-idt, op0+op_t-op, const0+const_t-const
         else:
@@ -247,7 +241,7 @@ def factor(string, idt, op, const):
     # Constant
     elif token.isdigit() == True:
         const += 1
-        return string.strip(), idt, op, const
+        return str(string).strip(), idt, op, const
     # Ident
     else:
         if token in ident:
@@ -271,7 +265,7 @@ def factor_tail(string, idt, op, const):
     #idt, op, const = 0, 0, 0
     if string == 1:
         # <factor_tail> → ε
-        #print("  factor_tail string: {}".format(string))
+        #print("  0factor_tail string: {}".format(string))
         return 1, idt, op, const
     else:
         # <factor_tail> → <mult_op><factor><factor_tail>
@@ -288,7 +282,7 @@ def factor_tail(string, idt, op, const):
             else:
                 break
         op += 1
-        string = ' '.join(s_temp[loc:])  
+        string = ' '.join(s_temp[loc+1:])  
         # MULT_OP (+/-)를 기준으로 factor, factor_tail 나눕니다
         mul_loc, div_loc = 1000000, 1000000
         # 곱셈기호 찾기
@@ -300,23 +294,18 @@ def factor_tail(string, idt, op, const):
         # MULT_OP 가 존재하지 않는 경우
         if mul_loc == div_loc:
             mult_loc = 1000000
-            print(5555555)
             f, idt0, op0, const0 = factor(string, idt, op, const)
             # 1을 넘겨주면 factor_tail은 ε을 반환한다.
             f_tail, idt_t, op_t, const_t = factor_tail(1, idt, op, const)
+        # 존재하는 경우
         else:
             # 선두에 있는 연산자 우선
             mult_loc = mul_loc if mul_loc < div_loc else div_loc  
             # 서두의 MULT_OP를 제외한 식을 넘긴다.
-            if mult_loc == 0:
-                f, idt0, op0, const0 = factor(string[1:], idt, op, const)
-                f_tail, idt_t, op_t, const_t = factor_tail(1, idt, op, const)
-            else:
-                f, idt0, op0, const0 = factor(string[2:mult_loc], idt, op, const)
-                f_tail, idt_t, op_t, const_t = factor_tail(string[mult_loc:], idt, op, const)
+            f, idt0, op0, const0 = factor(string[:mult_loc], idt, op, const)
+            f_tail, idt_t, op_t, const_t = factor_tail(string[mult_loc:], idt, op, const)
         if f == Unknown or f_tail == Unknown:
             return Unknown, idt0+idt_t-idt, op0+op_t-op, const0+const_t-const
-        # 수정 필요
         else:
             # 연산자 없는 경우
             if mult_loc == 1000000:
